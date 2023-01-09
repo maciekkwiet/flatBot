@@ -45,11 +45,13 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
       fs.writeFile('oldFlatOffers.json', JSON.stringify(newOldFlatOffers), () => {})
       fs.writeFile('newFlatOffers.json', JSON.stringify(urls), () => {})
 
-      const newOffers = urls.filter((url: string) => !newOldFlatOffers.includes(url))
+      const newOffers = urls.filter((url: string) => !newOldFlatOffers.includes(url)) ?? []
 
-      if (newOffers?.length > 0) {
+      if (newOffers.length > 0) {
         TelegramBot.sendMessage(-1001870792878, newOffers.toString())
       }
+
+      logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`)
 
     } , 10 * 1000)
 }
