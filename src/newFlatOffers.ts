@@ -46,7 +46,7 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot) => {
       const newOffers = urls.filter((url: any) => url.includes(newOldFlatOffers))
 
       if (newOffers.length > 0) {
-        TelegramBot.sendMessage(-1001870792878, 'test')
+        TelegramBot.sendMessage(-1001870792878, newOffers)
       }
 
       console.log(newOffers)
