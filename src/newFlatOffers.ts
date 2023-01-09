@@ -4,8 +4,7 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import * as winston from 'winston'
 
 export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston.Logger) => {
-    console.log('Uruchomiono aplikację')
-    logger.info('Sending first message...');
+    logger.info('Sending first message...')
     TelegramBot.sendMessage(-1001870792878, 'Bot uruchomiony poprawnie')
     setInterval(async () => {
       const response = await fetch("https://www.olx.pl/api/v1/offers/?offset=0&limit=50&category_id=15&region_id=3&city_id=19701&sort_by=created_at%3Adesc&filter_enum_rooms%5B0%5D=two&filter_enum_rooms%5B1%5D=three&filter_float_m%3Afrom=40&filter_float_price%3Afrom=2500&filter_float_price%3Ato=3000&filter_refiners=spell_checker&facets=%5B%7B%22field%22%3A%22district%22%2C%22fetchLabel%22%3Atrue%2C%22fetchUrl%22%3Atrue%2C%22limit%22%3A30%7D%2C%7B%22field%22%3A%22category_without_exclusions%22%2C%22fetchLabel%22%3Atrue%2C%22fetchUrl%22%3Atrue%2C%22limit%22%3A10%7D%5D&sl=183f1984023x39a26426", {
@@ -34,24 +33,23 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
   
       const result = await response.json()
   
-      const urls = result.data.map((option: any) => option.url)
+      const urls = result.data.map((option: any) => option.url.toString()) as string[]
 
       const newFlatOffers = await fs.readFileSync('newFlatOffers.json', 'utf8')
       const oldFlatOffers = await fs.readFileSync('oldFlatOffers.json', 'utf8')
       const parsedNewFlatOffers = JSON.parse(newFlatOffers)
       const parsedOldFlatOffers = JSON.parse(oldFlatOffers)
 
-      const newOldFlatOffers = [...new Set([...parsedNewFlatOffers, ...parsedOldFlatOffers])]
+      const newOldFlatOffers = [...new Set([...parsedNewFlatOffers, ...parsedOldFlatOffers])] as string[]
 
       fs.writeFile('oldFlatOffers.json', JSON.stringify(newOldFlatOffers), () => {})
       fs.writeFile('newFlatOffers.json', JSON.stringify(urls), () => {})
 
-      const newOffers = urls.filter((url: any) => url.includes(newOldFlatOffers))
+      const newOffers = urls.filter((url: string) => !newOldFlatOffers.includes(url))
 
-      if (newOffers.length > 0) {
-        TelegramBot.sendMessage(-1001870792878, newOffers)
+      if (newOffers?.length > 0) {
+        TelegramBot.sendMessage(-1001870792878, newOffers.toString())
       }
 
-      console.log(newOffers)
     } , 10 * 1000)
 }
