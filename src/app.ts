@@ -4,6 +4,7 @@ import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { getNewFlatOffers } from './newFlatOffers';
+import * as winston from 'winston'
 
 dotenv.config();
 
@@ -24,7 +25,17 @@ if (dbKey) {
 const port = process.env.PORT || 4001;
 server.listen(port, () => console.log(`Server listening on port ${port}`));
 
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [new winston.transports.Console()],
+});
+
+logger.info('App started');
+
 const token = process.env.TELEGRAM_TOKEN ?? ''
 const bot = new TelegramBot(token, {polling: true});
 
-getNewFlatOffers(bot)
+logger.info('Bot created');
+
+getNewFlatOffers(bot, logger)
