@@ -48,10 +48,11 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
       const newOffers = urls.filter((url: string) => !newOldFlatOffers.includes(url)) ?? []
 
       if (newOffers.length > 0) {
+        logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`)
         TelegramBot.sendMessage(-1001870792878, newOffers.toString())
+      } else {
+        logger.info(`Brak nowych mieszkań`)
       }
-
-      logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`)
 
     } , 10 * 1000)
 }
