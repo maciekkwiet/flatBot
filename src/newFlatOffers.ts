@@ -27,10 +27,13 @@ const getOtodomData = async (logger: winston.Logger) => {
       "method": "GET"
     });
 
-    return responseOtodom?.json() ?? {}
+    const resultOtodom = await responseOtodom?.json() ?? {}
+    const urlsOtodom = resultOtodom.pageProps?.data?.searchAds?.items?.map((option: any) => `https://www.otodom.pl/pl/oferta/${option.slug.toString()}`)
+    
+    return urlsOtodom ?? []
   } catch {
     logger.info('Request to otodom failed...')
-    return {}
+    return []
   }
 }
 
@@ -60,10 +63,13 @@ const getOlxData = async (logger: winston.Logger) => {
       "method": "GET"
     });
 
-    return responseOLX?.json() ?? {}
+    const resultOLX = await responseOLX?.json() ?? {}
+    const urlsOLX = resultOLX.data?.map((option: any) => option.url.toString())
+
+    return urlsOLX ?? []
   } catch {
     logger.info('Request to olx failed...')
-    return {}
+    return []
   }
 }
 
@@ -71,11 +77,10 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
     logger.info('Sending first message...')
     TelegramBot.sendMessage(-1001870792878, 'Bot uruchomiony poprawnie')
     setInterval(async () => {
-      const resultOLX = await getOlxData(logger) ?? {}
-      const resultOtodom = await getOtodomData(logger) ?? {}
-  
-      const urlsOLX = resultOLX.data?.map((option: any) => option.url.toString()) ?? []
-      const urlsOtodom = resultOtodom.pageProps?.data?.searchAds?.items?.map((option: any) => `https://www.otodom.pl/pl/oferta/${option.slug.toString()}`) ?? []
+      const urlsOLX = await getOlxData(logger) ?? []
+      const urlsOtodom = await getOtodomData(logger) ?? []
+
+      const newUrls = [...urlsOLX, ...urlsOtodom]
 
       const newFlatOffers = await fs.readFileSync('newFlatOffers.json', 'utf8')
       const oldFlatOffers = await fs.readFileSync('oldFlatOffers.json', 'utf8')
@@ -85,9 +90,9 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
       const newOldFlatOffers = [...new Set([...parsedNewFlatOffers, ...parsedOldFlatOffers])] as string[]
 
       fs.writeFile('oldFlatOffers.json', JSON.stringify(newOldFlatOffers), () => {})
-      fs.writeFile('newFlatOffers.json', JSON.stringify([...urlsOLX, ...urlsOtodom]), () => {})
+      fs.writeFile('newFlatOffers.json', JSON.stringify(newUrls), () => {})
 
-      const newOffers = [...urlsOLX, ...urlsOtodom].filter((url: string) => !newOldFlatOffers.includes(url)) ?? []
+      const newOffers = newUrls.filter((url: string) => !newOldFlatOffers.includes(url)) ?? []
 
       if (newOffers.length > 0) {
         logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`)
