@@ -53,11 +53,11 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
         "method": "GET"
       });
   
-      const resultOLX = await responseOLX.json()
-      const resultOtodom = await responseOtodom.json()
+      const resultOLX = await responseOLX?.json() ?? {}
+      const resultOtodom = await responseOtodom?.json() ?? {}
   
-      const urlsOLX = resultOLX.data.map((option: any) => option.url.toString()) as string[]
-      const urlsOtodom = resultOtodom.pageProps.data.searchAds.items.map((option: any) => `https://www.otodom.pl/pl/oferta/${option.slug.toString()}`) as string[]
+      const urlsOLX = resultOLX.data?.map((option: any) => option.url.toString()) ?? []
+      const urlsOtodom = resultOtodom.pageProps?.data?.searchAds?.items?.map((option: any) => `https://www.otodom.pl/pl/oferta/${option.slug.toString()}`) ?? []
 
       const newFlatOffers = await fs.readFileSync('newFlatOffers.json', 'utf8')
       const oldFlatOffers = await fs.readFileSync('oldFlatOffers.json', 'utf8')
