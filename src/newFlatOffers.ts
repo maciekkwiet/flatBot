@@ -73,9 +73,18 @@ const getOlxData = async (logger: winston.Logger) => {
   }
 }
 
-export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston.Logger) => {
+export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston.Logger, whatsAppClient: any) => {
+    const urlsOLX = await getOlxData(logger) ?? []
+    const urlsOtodom = await getOtodomData(logger) ?? []
+
+    const newUrls = [...urlsOLX, ...urlsOtodom]
+
+    fs.writeFile('oldFlatOffers.json', JSON.stringify(newUrls), () => {})
+    fs.writeFile('newFlatOffers.json', JSON.stringify(newUrls), () => {})
+  
     logger.info('Sending first message...')
     TelegramBot.sendMessage(-1001870792878, 'Bot uruchomiony poprawnie')
+
     setInterval(async () => {
       const urlsOLX = await getOlxData(logger) ?? []
       const urlsOtodom = await getOtodomData(logger) ?? []
@@ -97,6 +106,7 @@ export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston
       if (newOffers.length > 0) {
         logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`)
         TelegramBot.sendMessage(-1001870792878, newOffers.toString())
+        whatsAppClient.sendMessage('120363056103366568@g.us', newOffers.toString());
       } else {
         logger.info(`Brak nowych mieszkań`)
       }
