@@ -1,115 +1,115 @@
-import fetch from "node-fetch"
-import * as fs from 'fs'
+import fetch from 'node-fetch';
+import * as fs from 'fs';
 import * as TelegramBot from 'node-telegram-bot-api';
-import * as winston from 'winston'
+import * as winston from 'winston';
+import axios from 'axios';
 
 const getOtodomData = async (logger: winston.Logger) => {
   try {
-    const responseOtodom = await fetch("https://www.otodom.pl/_next/data/BQYrPyhzIUlk1YK9rR-JO/pl/oferty/wynajem/mieszkanie/wroclaw.json?distanceRadius=0&page=1&limit=36&market=ALL&ownerTypeSingleSelect=ALL&priceMin=2500&priceMax=3000&areaMin=40&locations=%5Bcities_6-39%5D&by=DEFAULT&direction=DESC&viewType=listing&lang=pl&searchingCriteria=wynajem&searchingCriteria=mieszkanie&searchingCriteria=wroclaw", {
-      "headers": {
-        "accept": "*/*",
-        "accept-language": "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7",
-        "baggage": "sentry-environment=otodompl-prd,sentry-release=re-frontend-platform%402023-01-09_14.01-otodompl,sentry-transaction=%2F%5Blang%5D%2Foferty%2F%5B%5B...searchingCriteria%5D%5D,sentry-public_key=a87771f160f04e019f364675c25c0588,sentry-trace_id=a22a77d493bd4a34a2718f3aacbee100,sentry-sample_rate=0.0001",
-        "cache-control": "no-cache",
-        "pragma": "no-cache",
-        "sec-ch-ua": "\"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Google Chrome\";v=\"108\"",
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": "\"macOS\"",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "sentry-trace": "a22a77d493bd4a34a2718f3aacbee100-a0d2c04ed218d698-0",
-        "cookie": "laquesisff=gre-12226#rer-165#rer-166#rst-73#rst-74; OptanonAlertBoxClosed=2022-10-19T18:42:38.638Z; OTAdditionalConsentString=1~89.2008.2072.2322.2465.2501.2999.3028.3225.3226.3231.3232.3234.3235.3236.3237.3238.3240.3244.3245.3250.3251.3253.3257.3260.3268.3270.3272.3281.3288.3290.3292.3293.3295.3296.3300.3306.3307.3308.3314.3315.3316.3318.3324.3327.3328.3330; _gcl_au=1.1.1122860254.1666204959; st_userID=GA1.2.1507911430.1666204959__unlogged; __gads=ID=4ffd260220d3f372:T=1666204958:S=ALNI_MZVANYH2eH0z-Z2o4VyrWgWESUP7g; laquesissu=294@survey_answer|1#314@ad_page|1#314@listing|1; _ga_MNTL052JB4=GS1.1.1671139974.9.0.1671139974.60.0.0; lang=pl; eupubconsent-v2=CPhF1LAPhF1LAAcABBENCyCsAP_AAH_AAAYgJFNf_X__b2_r-_5_f_t0eY1P9_7__-0zjhfdl-8N3f_X_L8X52M7vF36tq4KuR4ku3LBIUdlHOHcTUmw6okVryPsbk2cr7NKJ7PEmnMbOydYGH9_n1_z-ZKY7___f_7z_v-v___3____7-3f3__5___-__e_V__9zfn9_____9vP___9v-_9__________3_7997BIgAkw1biALsyxwZtowigRAjCsJDqBQAUUAwtEBhA6uCnZXAT6wgQAIBQBOBECHAFGDAIAABIAkIiAkCPBAIACIBAACABUIhAAxsAgsALAwCAAUA0LFGKAIQJCDIgIilMCAqRIKCeyoQSg_0NMIQ6ywAoNH_FQgI1kDFYEQkLByHBEgJeLJA8xRvkAIwQoBRKhWogAAA.f_gAD_gAAAAA; observed5_id_clipboard=63bc1c8d39b0f; observed5_sec_clipboard=lz1I2QndlnJH3c%2BOM9lp3Jf6lAS6a5Z5; _gid=GA1.2.1219320400.1673207269; ln_or=eyIxODYxOTA4IjoiZCJ9; __gfp_64b=a9UnyjjWEvuZprnegmOaC_VzmXpdMgkwdCG9PZ8tXjf.S7|1666204959; laquesis=remt-288@a#remt-395@a#remt-448@a#remt-457@b#remt-458@b#remt-507@c#see-1171@c#see-1189@a#see-1294@c#smr-1387@b#smr-1388@c#smr-1481@b#smr-1486@b#smr-954@b; PHPSESSID=4nov7815vjsdsvmi8egqgfn9i2; mobile_default=desktop; ninja_user_status=unlogged; optimizelyEndUserId=oeu1673282248579r0.02918823203480203; lastCatType=2; __gpi=UID=00000b758bdb18e9:T=1666204958:RT=1673299821:S=ALNI_MbPq1EmHjTrUzTyVHsWByhxBhughA; OptanonConsent=isGpcEnabled=0&datestamp=Mon+Jan+09+2023+22%3A31%3A48+GMT%2B0100+(czas+%C5%9Brodkowoeuropejski+standardowy)&version=6.32.0&isIABGlobal=false&hosts=&genVendors=V9%3A0%2C&consentId=b8d02efa-bf8a-432a-be63-a0ece378b77a&interactionCount=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1%2Cgad%3A1%2CSTACK42%3A1&geolocation=PL%3B02&AwaitingReconsent=false; _uetsid=1f209b30902511ed9757d15a99df2773; _uetvid=49d60080f57311ec998793fab994f6ba; _ga=GA1.2.1025374861.1666205631; _ga_MJFMKPTTMP=GS1.1.1673299789.5.1.1673299921.30.0.0; lqstatus=1673302560|18598708711x755b042e|see-1189#see-1294#smr-1481#smr-1486#remt-448#remt-457#remt-507|1670445309|314; _gat_UA-124076552-11=1; _gat_clientNinja=1; onap=183f18df57cx8ec294a-12-18598708711x755b042e-179-1673303179; _ga_HL51DW3Q97=GS1.1.1673299789.13.1.1673301379.54.0.0",
-        "Referer": "https://www.otodom.pl/pl/oferty/wynajem/mieszkanie/wroclaw?distanceRadius=0&page=1&limit=36&market=ALL&ownerTypeSingleSelect=ALL&priceMin=2500&priceMax=3000&areaMin=40&locations=%5Bcities_6-39%5D&by=DEFAULT&direction=DESC&viewType=listing",
-        "Referrer-Policy": "no-referrer-when-downgrade"
-      },
-      "body": undefined,
-      "method": "GET"
-    });
+    const resultOtodom = await axios.get(
+      'https://www.otodom.pl/_next/data/88I_ALJGctKAM23Sl0y3D/pl/wyniki/wynajem/mieszkanie/dolnoslaskie/wroclaw/wroclaw/wroclaw/krzyki/jagodno.json?limit=48&areaMin=38&roomsNumber=%5BTWO%2CTHREE%5D&by=DEFAULT&direction=DESC&viewType=listing&mapBounds=17.061347656998247%2C51.059398655926145%2C17.049468384387374%2C51.05615956499575&searchingCriteria=wynajem&searchingCriteria=mieszkanie&searchingCriteria=dolnoslaskie&searchingCriteria=wroclaw&searchingCriteria=wroclaw&searchingCriteria=wroclaw&searchingCriteria=krzyki&searchingCriteria=jagodno',
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+          'Accept-Language': 'en-US,en;q=0.9',
+          Accept: 'application/json, text/plain, */*',
+        },
+      }
+    );
 
-    const resultOtodom = await responseOtodom?.json() ?? {}
-    const urlsOtodom = resultOtodom.pageProps?.data?.searchAds?.items?.map((option: any) => `https://www.otodom.pl/pl/oferta/${option.slug.toString()}`)
-    
-    return urlsOtodom ?? []
-  } catch {
-    logger.info('Request to otodom failed...')
-    return []
+    const urlsOtodom = resultOtodom.data.pageProps?.data?.searchAds?.items?.map(
+      (option: any) => `https://www.otodom.pl/pl/oferta/${option.slug.toString()}`
+    );
+
+    return urlsOtodom ?? [];
+  } catch (err) {
+    logger.info('Request to otodom failed...', err);
+    return [];
   }
-}
+};
 
 const getOlxData = async (logger: winston.Logger) => {
   try {
-    const responseOLX = await fetch("https://www.olx.pl/api/v1/offers/?offset=0&limit=50&category_id=15&region_id=3&city_id=19701&sort_by=created_at%3Adesc&filter_enum_rooms%5B0%5D=two&filter_enum_rooms%5B1%5D=three&filter_float_m%3Afrom=40&filter_float_price%3Afrom=2500&filter_float_price%3Ato=3000&filter_refiners=spell_checker&facets=%5B%7B%22field%22%3A%22district%22%2C%22fetchLabel%22%3Atrue%2C%22fetchUrl%22%3Atrue%2C%22limit%22%3A30%7D%2C%7B%22field%22%3A%22category_without_exclusions%22%2C%22fetchLabel%22%3Atrue%2C%22fetchUrl%22%3Atrue%2C%22limit%22%3A10%7D%5D&sl=183f1984023x39a26426", {
-      "headers": {
-        "accept": "*/*",
-        "accept-language": "pl",
-        "authorization": "Bearer fe22560b2ff790b963a6cfeaf9a768b532117e9a",
-        "cache-control": "no-cache",
-        "pragma": "no-cache",
-        "sec-ch-ua": "\"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Google Chrome\";v=\"108\"",
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": "\"macOS\"",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "x-client": "DESKTOP",
-        "x-device-id": "76f7df06-34de-4424-a9f0-6ea2b847ab4d",
-        "x-platform-type": "mobile-html5",
-        "cookie": "observed_aui=6d3b05712a3a4b27a8d421b658dd9601; dfp_user_id=e91dd61d-a3c0-4b25-830c-06c13410e114-ver2; user_adblock_status=false; OptanonAlertBoxClosed=2022-10-19T18:53:57.887Z; OTAdditionalConsentString=1~89.2008.2072.2322.2465.2501.2999.3028.3225.3226.3231.3232.3234.3235.3236.3237.3238.3240.3244.3245.3250.3251.3253.3257.3260.3268.3270.3272.3281.3288.3290.3292.3293.3295.3296.3300.3306.3307.3308.3314.3315.3316.3318.3324.3327.3328.3330; _gcl_au=1.1.1899540019.1666205638; __gsas=ID=b1b2934d12e66883:T=1666205638:S=ALNI_MYyZ3TiLnxgNMRZuhSjBy82Rim1_Q; __gads=ID=09983120769ae8a9:T=1666205638:S=ALNI_MatrFjB0mLi4RBk_NttM17wTy-CnA; lister_lifecycle=1666205658; WPabs=826c76; deviceGUID=76f7df06-34de-4424-a9f0-6ea2b847ab4d; _hjSessionUser_1685071=eyJpZCI6IjMzZTcxMzJlLWEwOGQtNTM2NS1iNTlhLWQyYmY3ZDFkYzcxMyIsImNyZWF0ZWQiOjE2NjYyMDU2MzA3MDMsImV4aXN0aW5nIjp0cnVlfQ==; _ga_YFPJ6DNP92=GS1.1.1668886607.6.1.1668887475.0.0.0; __utma=221885126.1025374861.1666205631.1666205638.1671133765.2; __utmz=221885126.1671133765.2.2.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); a_refresh_token=2ccf6c2607c89800e32799a1ad85cec1282d348b; a_grant_type=device; user_id=1352706890; user_business_status=private; ldTd=true; laquesisff=a2b-000#aut-388#buy-2279#buy-2489#buy-2811#dat-2874#decision-256#do-2963#do-3418#euonb-114#euweb-1372#euweb-451#grw-124#kuna-307#kuna-554#kuna-603#mou-1052#oesx-1437#oesx-1643#oesx-645#oesx-867#olxeu-0000#psm-308#psm-402#psm-457#psm-574#sd-570#srt-1289#srt-1346#srt-1434#srt-1593#srt-1758#srt-683; laquesissu=; mobile_default=desktop; eupubconsent-v2=CPhIs1zPhIs1zAcABBENCyCsAP_AAH_AAAYgJFNf_X__b2_r-_5_f_t0eY1P9_7__-0zjhfdl-8N3f_X_L8X52M7vF36tq4KuR4ku3LBIUdlHOHcTUmw6okVryPsbk2cr7NKJ7PEmnMbOydYGH9_n1_z-ZKY7___f_7z_v-v___3____7-3f3__5___-__e_V__9zfn9_____9vP___9v-_9__________3_7997BIQAkw1biALsSxwJtowigRAjCsJDqBQAUUAwtEBhA6uCnZXAT6wgQAIBQBGBECHAFGDAIAAAIAkIiAkCPBAIACIBAACABUIhAARsAgoALAwCAAUA0LFGKAIQJCDIgIilMCAiRIKCeyoQSg_0NMIQ6ywAoNH_FQgIlACFYEQkLByHBEgJeLJAsxRvkAIwQoBRKhWoAAAA.f_gAD_gAAAAA; a_access_token=fe22560b2ff790b963a6cfeaf9a768b532117e9a; _gid=GA1.2.1219320400.1673207269; laquesis=cars-33613@b#euads-3574@a#jobs-4078@a#jobs-4633@b#jobs-4643@a#jobs-4757@a#jobs-4782@d#oesx-2305@b#oesx-2313@b#oesx-2322@c#oeu2u-2588@b#olxeu-40144@b#olxeu-40264@a#ser-30@b; __gfp_64b=05PMsay9GVYeN0Z3nMlj.Qya1yzjnthpcLoaj46MVqP.G7|1666205638; OptanonConsent=isGpcEnabled=0&datestamp=Mon+Jan+09+2023+09%3A46%3A29+GMT%2B0100+(czas+%C5%9Brodkowoeuropejski+standardowy)&version=6.19.0&isIABGlobal=false&hosts=&genVendors=V9%3A0%2C&consentId=605370d9-fe0b-4d6d-ba0f-ebdb2b349fca&interactionCount=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1%2Cgad%3A1%2CSTACK42%3A1&geolocation=PL%3B02&AwaitingReconsent=false; sbjs_migrations=1418474375998%3D1; sbjs_current_add=fd%3D2023-01-09%2009%3A46%3A29%7C%7C%7Cep%3Dhttps%3A%2F%2Fwww.olx.pl%2Fd%2Fnieruchomosci%2Fmieszkania%2Fwynajem%2Fwroclaw%2F%7C%7C%7Crf%3D%28none%29; sbjs_first_add=fd%3D2023-01-09%2009%3A46%3A29%7C%7C%7Cep%3Dhttps%3A%2F%2Fwww.olx.pl%2Fd%2Fnieruchomosci%2Fmieszkania%2Fwynajem%2Fwroclaw%2F%7C%7C%7Crf%3D%28none%29; sbjs_current=typ%3Dtypein%7C%7C%7Csrc%3D%28direct%29%7C%7C%7Cmdm%3D%28none%29%7C%7C%7Ccmp%3D%28none%29%7C%7C%7Ccnt%3D%28none%29%7C%7C%7Ctrm%3D%28none%29; sbjs_first=typ%3Dtypein%7C%7C%7Csrc%3D%28direct%29%7C%7C%7Cmdm%3D%28none%29%7C%7C%7Ccmp%3D%28none%29%7C%7C%7Ccnt%3D%28none%29%7C%7C%7Ctrm%3D%28none%29; sbjs_udata=vst%3D1%7C%7C%7Cuip%3D%28none%29%7C%7C%7Cuag%3DMozilla%2F5.0%20%28Macintosh%3B%20Intel%20Mac%20OS%20X%2010_15_7%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F108.0.0.0%20Safari%2F537.36; newrelic_cdn_name=CF; dfp_segment=%5B%5D; PHPSESSID=hatbc5evtrsh9km7i90vhqf5io; __gpi=UID=00000b758cd8a54f:T=1666205638:RT=1673253990:S=ALNI_Mama0UJ1I6xwc8GdFIDbojdRRux9A; _hjIncludedInSessionSample=0; _hjSession_1685071=eyJpZCI6IjUwOWRjM2RiLWU4ODUtNDVjOS1iYzIxLWFmZGFmMTBlNGMzOCIsImNyZWF0ZWQiOjE2NzMyNTM5OTAwMjYsImluU2FtcGxlIjpmYWxzZX0=; _hjAbsoluteSessionInProgress=1; cto_bundle=gzCmlV9IJTJCV0Rjb2VMNlZ4dW9OY1dMWUxPNmVMJTJGRWFuVktCdVN6eUxNelloejR2ZGIlMkYxcGZjZ05Ubk1uMXl4cUZZMGdxSjFNY3VqQSUyQnM2c0MlMkZBa3FZMndESnZFZ3FSQkN3eDREV1JCNzhPYjBpN1NxdDJPMm82SzJUNmhqVk1vQWpVbCUyRkY1ZWVSMk1LRzFwWkc2M2ZIODZ4R1dwSlJDNTFTYXQ3dzJPdEx6azhGbGdmVWdINnRWcDVwJTJCWUpwZWNxaFZpVg; _ga=GA1.1.1025374861.1666205631; lqstatus=1673255251|18595b5affex13194907|euads-3574#jobs-4633||; _gat_clientNinja=1; _ga_V1KE40XCLR=GS1.1.1673253990.17.1.1673254182.60.0.0; _ga_MNTL052JB4=GS1.1.1673253990.13.1.1673254183.60.0.0; session_start_date=1673255988156; onap=183f1984023x39a26426-14-18595b5affex13194907-37-1673255988; sbjs_session=pgs%3D11%7C%7C%7Ccpg%3Dhttps%3A%2F%2Fwww.olx.pl%2Fd%2Fnieruchomosci%2Fmieszkania%2Fwynajem%2Fwroclaw%2F%3Fsearch%255Border%255D%3Dcreated_at%3Adesc%26search%255Bfilter_float_price%3Afrom%255D%3D2500%26search%255Bfilter_float_price%3Ato%255D%3D3000%26search%255Bfilter_float_m%3Afrom%255D%3D40%26search%255Bfilter_enum_rooms%255D%255B0%255D%3Dtwo%26search%255Bfilter_enum_rooms%255D%255B1%255D%3Dthree",
-        "Referer": "https://www.olx.pl/d/nieruchomosci/mieszkania/wynajem/wroclaw/?search%5Border%5D=created_at:desc&search%5Bfilter_float_price:from%5D=2500&search%5Bfilter_float_price:to%5D=3000&search%5Bfilter_float_m:from%5D=40&search%5Bfilter_enum_rooms%5D%5B0%5D=two&search%5Bfilter_enum_rooms%5D%5B1%5D=three",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-      },
-      "body": undefined,
-      "method": "GET"
-    });
-
-    const resultOLX = await responseOLX?.json() ?? {}
-    const urlsOLX = resultOLX.data?.map((option: any) => option.url.toString())
-
-    return urlsOLX ?? []
-  } catch {
-    logger.info('Request to olx failed...')
-    return []
-  }
-}
-
-export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston.Logger, whatsAppClient: any) => {
-    const urlsOLX = await getOlxData(logger) ?? []
-    const urlsOtodom = await getOtodomData(logger) ?? []
-
-    const newUrls = [...urlsOLX, ...urlsOtodom]
-
-    fs.writeFile('oldFlatOffers.json', JSON.stringify(newUrls), () => {})
-    fs.writeFile('newFlatOffers.json', JSON.stringify(newUrls), () => {})
-  
-    logger.info('Sending first message...')
-    TelegramBot.sendMessage(-1001870792878, 'Bot uruchomiony poprawnie')
-
-    setInterval(async () => {
-      const urlsOLX = await getOlxData(logger) ?? []
-      const urlsOtodom = await getOtodomData(logger) ?? []
-
-      const newUrls = [...urlsOLX, ...urlsOtodom]
-
-      const newFlatOffers = await fs.readFileSync('newFlatOffers.json', 'utf8')
-      const oldFlatOffers = await fs.readFileSync('oldFlatOffers.json', 'utf8')
-      const parsedNewFlatOffers = JSON.parse(newFlatOffers)
-      const parsedOldFlatOffers = JSON.parse(oldFlatOffers)
-
-      const newOldFlatOffers = [...new Set([...parsedNewFlatOffers, ...parsedOldFlatOffers])] as string[]
-
-      fs.writeFile('oldFlatOffers.json', JSON.stringify(newOldFlatOffers), () => {})
-      fs.writeFile('newFlatOffers.json', JSON.stringify(newUrls), () => {})
-
-      const newOffers = newUrls.filter((url: string) => !newOldFlatOffers.includes(url)) ?? []
-
-      if (newOffers.length > 0) {
-        logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`)
-        TelegramBot.sendMessage(-1001870792878, newOffers.toString())
-        whatsAppClient.sendMessage('120363056103366568@g.us', newOffers.toString());
-      } else {
-        logger.info(`Brak nowych mieszkań`)
+    const responseOLX = await fetch(
+      'https://www.olx.pl/api/v1/offers/?offset=0&limit=40&query=jagodno&category_id=15&region_id=3&city_id=19701&filter_enum_rooms%5B0%5D=two&filter_enum_rooms%5B1%5D=three&filter_refiners=spell_checker&suggest_filters=true&sl=1937f878dd9x6a9927eb',
+      {
+        headers: {
+          accept: '*/*',
+          'accept-language': 'pl',
+          'cache-control': 'no-cache',
+          pragma: 'no-cache',
+          priority: 'u=1, i',
+          'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"macOS"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
+          'x-client': 'DESKTOP',
+          'x-device-id': '9a2807bd-e10a-47fd-8717-f2238a843644',
+          'x-fingerprint':
+            'fbdc4f53959cdb4af9c2a8983d0ffab85c6324e638a283d8d11dae88fc3236ac3fef60c9cf99daeee8380ebb100f22a6faed307981c3a6ca4e1f7a2acddfea3393ba89d2bc096e2900d2d70001a8f4553fef60c9cf99daee9437bcd7a2768f44b497a357830277b800d2d70001a8f45500d2d70001a8f4559c3027904b07e5707dcebc9bff1a2a525a1778be62509b00e8380ebb100f22a6d35402d4882fb624a18f252f90584f1ff6e9813aa2a88b6b2aa98c6b03d84b2aaa6925b0558d723aa2dab357225d0511272ec8e83d084c3e29b755643a58ca1b6255da105753936400ab77cc9433c49756b16d11aecc8186de4a68aa4d5cf2873a80c6b77256f11a3a4962d8c4406b9a99adb47c7fb9b45e77bbf249a5dea7997e29dd87eedfb91793d10f1cc7e40c4448756dc8ca513af7aa89f99d0a92705581cea512963862be1fa7f0020eee7e44d5e3a2df978cc98281c4694103397b84007c3963de1362e7d8b7668586e5befd9a7cce06fbd6049945ec0f1d83431de81fa7f0020eee7e44e4788261c6c83237',
+          'x-platform-type': 'mobile-html5',
+          cookie:
+            'deviceGUID=9a2807bd-e10a-47fd-8717-f2238a843644; OptanonAlertBoxClosed=2024-12-01T00:03:29.509Z; eupubconsent-v2=CQI8_lgQI8_lgAcABBENBSF8AP_gAAAAAAYgKENV_G_fbXlj8X50aftkeY1f99h7rsQxBhfJk-4FyLuW_JwX32EzNA16pqYKmRIAu3TBIQFlGIDUBUCgaogVrTDMaECEgTNKJ6BEiFMRc2dYCFxvmwFD-QCY5tpt91d52Ret7dr83dzyy4Rnn3Kp_2S1WJCdA5cgAAAAAAAAAAAAAAAQAAAAAAAAAQAIAAAAAAAAAAAAAAAAAAAAF_cAAAAPnAAAAUEggAAIAAXABQAFQAOAAeABBAC8ANQAeABEACYAFUAN4AegA_ACEgEMARIAjgBLACaAFaAMAAYcAygDLAGyAOeAdwB3wD2APiAfYB-wD_AQAAikBFwEYAI0ASWAn4CgwFQAVcAuYBegDFAGiANoAbgA4kCPQJEATsAocBR4CkQFsALkAXeAvMBhsDIwMkAZOAy4BmYDOYGrgayA2MBt4DdQHBAOTAcuEAKgAOABIAEcAg4BHACaAF9ASsAm0BSACwgFiALyAYgAxYBkIDRgGpgNoAbcA3QcAoAARAA4ADwALgAkAB-AEcANAAjgByAEAgIOAhABEQCOAE0AKgAdIBKwCYgEygJtAUmArsBYgC1AF0AMEAYgAxYBkIDJgGjANTAa8A2gBtgDbgG6AOPActA50Dnx0EoABcAFAAVAA4ACCAFwAagA8ACIAEwAKsAXABdADEAG8APQAfoBDAESAJYATQAowBWgDAAGGAMoAaIA2QBzwDuAO8Ae0A-wD9AH_ARQBGICOgJLAT8BQYCogKuAWIAucBeQF6AMUAbQA3ABxADqAH2ARfAj0CRAEyAJ2AUPAo8CkAFNAKsAWKAtgBboC4AFyALtAXeAvMBfQDDQGPQMjAyQBk4DKoGWAZcAzMBnIDTYGrgawA28BuoDiwHJgOXIAFAAEAAPADQAOQAjgBYgC-gJtAUmAsQBeQDBAGeANGAamA2wBtwDdAHLAOfIQIAAFgAUABcADUAKoAXAAxABvAD0AI4AYAA54B3AHeAP8AigBKQCgwFRAVcAuYBigDaAHUAR6ApoBVgCxQFogLgAXIAyMBk4DOSUCIABAACwAKAAcAB4AEQAJgAVQAuABigEMARIAjgBRgCtAGAANkAd4A_ICogKuAXMAxQB1AETAIvgR6BIgCjwFigLYAXnAyMDJAGTgM5AawA28kARAAuAEcAdwBAACDgEcAKgAlYBMQCbQFJgMWAZYAzwBuQDdAHLFIHQAC4AKAAqABwAEAANAAeABEACYAFUAMQAfoBDAESAKMAVoAwABlADRAGyAOcAd8A_AD9AIsARiAjoCSgFBgKiAq4BcwC8gGKANoAbgA6gB7QD7AImARfAj0CRAE7AKHAUgAqwBYoC2AFwALkAXaAvMBfQDDYGRgZIAyeBlgGXAM5gawBrIDbwG6gOCAcmUAPgAXABIAC4AGQARwBHADkAHcAPsAgABBwCxAF1ANeAdsA_4CYgE2gKkAV2AugBeQDBAGLAMmAZ4A0YBqYDXgG6AOWA.f_wAAAAAAAAA; OTAdditionalConsentString=1~89.318.320.1421.1423.1659.1985.1987.2008.2072.2135.2322.2465.2501.2958.2999.3028.3225.3226.3231.3234.3235.3236.3237.3238.3240.3244.3245.3250.3251.3253.3257.3260.3270.3272.3281.3288.3290.3292.3293.3296.3299.3300.3306.3307.3309.3314.3315.3316.3318.3324.3328.3330.3331.3531.3731.3831.4131.4531.4631.4731.4831.5231.6931.7235.7831.7931.8931.9731.10231.10631.10831.11031.11531.12831.13632.13731.14237.14332.15731.16831.16931.21233.23031.25131.25731.25931.26031.26831.27731.27831.28031.28731.28831.29631.31631.32531.33631.34231.34631.36831; __gsas=ID=94e50a79e2a3b659:T=1733011410:RT=1733011410:S=ALNI_MYMCxBreKmK6f9bqQu-i_XDLSjnVA; _cc_id=897e025c272cf1bc6a6a4d951abbc909; laquesisff=a2b-000#aut-1425#aut-388#bl-2928#buy-2279#buy-2489#buy-4410#cou-1670#dat-2874#de-1927#de-1928#de-2170#de-2547#de-2559#de-2724#decision-256#do-2963#do-3418#euit-2250#euonb-114#f8nrp-1779#grw-124#jobs-7611#kuna-307#kuna-554#kuna-603#mart-1341#mou-1052#oesx-1437#oesx-2063#oesx-2798#oesx-2864#oesx-2926#oesx-3069#oesx-3150#oesx-3713#oesx-4295#oesx-645#oesx-867#olxeu-0000#psm-308#psm-402#psm-457#psm-574#rm-28#rm-707#rm-780#rm-824#rm-852#sd-2240#sd-2759#sd-3192#sd-570#srt-1289#srt-1346#srt-1434#srt-1593#srt-1758#srt-683#uacc-529#uacc-561#ul-3512#ul-3704#up-90; _gcl_au=1.1.315365657.1733011416; __rtbh.uid=%7B%22eventType%22%3A%22uid%22%2C%22id%22%3A%22undefined%22%2C%22expiryDate%22%3A%222025-12-01T00%3A03%3A37.052Z%22%7D; _hjSessionUser_1685071=eyJpZCI6ImVmODYxYjVkLTU0OGMtNTUwZi05YzgzLWIwODQ0NGVjMTYxNiIsImNyZWF0ZWQiOjE3MzMwMTE0MTAyNTcsImV4aXN0aW5nIjp0cnVlfQ==; cto_bundle=Osiz1l9LeEYxTU1VbkgxelVGUk5BYXFZeGxrRlk1ZXkybzFzamprc1M0Q2pWT09Vb0s2TFMxb0tkdDY4bUsxbUhaZk5hUFhBZWtvR3ozc1VjWmMlMkZKOCUyQkVqMmdWQ2d4aVl4JTJGTmVYQ1g0dlRINU81eWtZc21SYWdTNkRyOVhLMmtnZE81dXBoZTZkUHRxbUFzU0glMkYlMkJBRk56aXdQcWZ1ZHc5dkVKa2dSbmRpQTJUT1RLeFJCYW9JZDlJSmFiRHJ0Y3VqdE1D; _ga_6PZTQNYS5C=GS1.1.1733015868.2.0.1733015868.60.0.0; _ga_1MNBX75RRH=GS1.1.1733015868.2.0.1733015868.0.0.0; OptanonConsent=isGpcEnabled=0&datestamp=Mon+Dec+23+2024+00%3A43%3A09+GMT%2B0100+(czas+%C5%9Brodkowoeuropejski+standardowy)&version=202402.1.0&browserGpcFlag=0&isIABGlobal=false&hosts=&genVendors=V10%3A0%2C&consentId=638a3a9d-811b-4b15-a3fe-f86c77794664&interactionCount=1&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1%2Cgad%3A1&geolocation=PL%3B02&AwaitingReconsent=false; session_start_date=1734912789615; _hjSession_1685071=eyJpZCI6IjQwZjk0MjVmLTEzNjQtNDNhZC1hNzAxLWE2NjRiNTFhNzcyNSIsImMiOjE3MzQ5MTA5ODk3NTgsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MX0=; PHPSESSID=cmbd2cjtijh9a3p712keav9emo; __gfp_64b=1SeBXJKJNKMU0QVr..ag7VJy2j4HrykzmJEtIqWgnNn.w7|1733011410|2|||8,2,32; __gads=ID=3af2b1da1247cd4d:T=1733011410:RT=1734910990:S=ALNI_MaoR9be0zX16t9yoqyMpUKBw8NwJQ; __gpi=UID=00000f5e19791664:T=1733011410:RT=1734910990:S=ALNI_MZr6KCsGsPv0vyXngnkoSnNuODcyg; __eoi=ID=baacc93a50c65121:T=1733011410:RT=1734910990:S=AA-Afja3BcSsHtc03TUs6FkLVZIK; ldTd=true; panoramaId_expiry=1735515790764; panoramaId=2eb96a395666cfef55e1fe562e6c185ca02c93aedb59ce465460ac1693ccbff0; panoramaIdType=panoDevice; laquesis=aut-3337@c#dc-18@b#dc-263@b#de-3014@a#dv-2942@a#edu2r-6295@b#erm-1674@b#eupp-3035@b#eupp-3050@b#jobs-8167@b#jobs-8352@a#jobs-8469@b#jobs-8616@a#oecs-688@b#oecs-809@c#oecs-927@b#oesx-4266@b#oesx-4408@b#olxeu-42214@c#olxeu-42241@b#search-1289@a#search-1307@b#search-1534@d#ser-1093@a#ser-1209@b; lqstatus=1734912371|193f0c0d997x5b4347f6|jobs-8616#search-1307#ser-1093#ser-1209#search-1534|||0; _gid=GA1.2.1683125360.1734910991; _gat_clientNinja=1; ab.storage.sessionId.535b859e-9238-4873-a90e-4c76b15ce078=%7B%22g%22%3A%22ef2ad789-defa-09e0-621d-06a7e7182eb7%22%2C%22e%22%3A1734912791316%2C%22c%22%3A1734910991316%2C%22l%22%3A1734910991316%7D; ab.storage.deviceId.535b859e-9238-4873-a90e-4c76b15ce078=%7B%22g%22%3A%225746eb6b-9473-763b-d8d0-c437acb9cfc0%22%2C%22c%22%3A1703214675539%2C%22l%22%3A1734910991317%7D; _gat_UA-124076552-22=1; __rtbh.lid=%7B%22eventType%22%3A%22lid%22%2C%22id%22%3A%22BqaM1f8VrwvI8jPwZDHJ%22%2C%22expiryDate%22%3A%222025-12-22T23%3A43%3A11.628Z%22%7D; _ga=GA1.1.85651948.1733011411; _ga_V1KE40XCLR=GS1.1.1734910991.3.1.1734911015.36.0.0; onap=1937f878dd9x6a9927eb-2-193f0c0d997x5b4347f6-50-1734912826',
+          Referer:
+            'https://www.olx.pl/nieruchomosci/mieszkania/wynajem/wroclaw/q-jagodno/?search%5Bfilter_enum_rooms%5D%5B0%5D=two&search%5Bfilter_enum_rooms%5D%5B1%5D=three',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+        },
+        method: 'GET',
       }
+    );
 
-    } , 10 * 1000)
-}
+    const resultOLX = (await responseOLX?.json()) ?? {};
+    const urlsOLX = resultOLX.data?.map((option: any) => option.url.toString());
+
+    return urlsOLX ?? [];
+  } catch {
+    logger.info('Request to olx failed...');
+    return [];
+  }
+};
+
+export const getNewFlatOffers = async (TelegramBot: TelegramBot, logger: winston.Logger, whatsAppClient?: any) => {
+  const urlsOLX = (await getOlxData(logger)) ?? [];
+  const urlsOtodom = (await getOtodomData(logger)) ?? [];
+
+  const newUrls = [...urlsOLX, ...urlsOtodom];
+
+  fs.writeFile('oldFlatOffers.json', JSON.stringify(newUrls), () => {});
+  fs.writeFile('newFlatOffers.json', JSON.stringify(newUrls), () => {});
+
+  logger.info('Sending first message...');
+  TelegramBot.sendMessage(-1001870792878, 'Bot uruchomiony poprawnie');
+
+  setInterval(async () => {
+    const urlsOLX = (await getOlxData(logger)) ?? [];
+    const urlsOtodom = (await getOtodomData(logger)) ?? [];
+
+    const newUrls = [...urlsOLX, ...urlsOtodom];
+
+    const newFlatOffers = await fs.readFileSync('newFlatOffers.json', 'utf8');
+    const oldFlatOffers = await fs.readFileSync('oldFlatOffers.json', 'utf8');
+    const parsedNewFlatOffers = JSON.parse(newFlatOffers);
+    const parsedOldFlatOffers = JSON.parse(oldFlatOffers);
+
+    const newOldFlatOffers = [...new Set([...parsedNewFlatOffers, ...parsedOldFlatOffers])] as string[];
+
+    fs.writeFile('oldFlatOffers.json', JSON.stringify(newOldFlatOffers), () => {});
+    fs.writeFile('newFlatOffers.json', JSON.stringify(newUrls), () => {});
+
+    const newOffers = newUrls.filter((url: string) => !newOldFlatOffers.includes(url)) ?? [];
+
+    if (newOffers.length > 0) {
+      logger.info(`Znaleziono nowe mieszkanie: ${newOffers.toString()}`);
+      TelegramBot.sendMessage(-1001870792878, newOffers.toString());
+      if (whatsAppClient) {
+        whatsAppClient.sendMessage('120363056103366568@g.us', newOffers.toString());
+      }
+    } else {
+      logger.info(`Brak nowych mieszkań`);
+    }
+  }, 10 * 1000);
+};
+
