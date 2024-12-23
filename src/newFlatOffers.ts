@@ -27,7 +27,7 @@ const getOtodomData = async (logger: winston.Logger) => {
 
     return urlsOtodom ?? [];
   } catch (err) {
-    logger.info('Request to otodom failed...', err);
+    logger.info('Request to otodom failed...', err?.message);
     return [];
   }
 };

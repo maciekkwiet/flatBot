@@ -7,9 +7,9 @@ import { getNewFlatOffers } from './newFlatOffers';
 import * as winston from 'winston';
 
 // const qrcode = require('qrcode-terminal');
-const { Client } = require('whatsapp-web.js');
+// const { Client } = require('whatsapp-web.js');
 
-const whatsAppClient = new Client();
+// const whatsAppClient = new Client();
 
 // whatsAppClient.on('qr', (qr: any) => {
 //   qrcode.generate(qr, {small: true});
@@ -53,5 +53,6 @@ const bot = new TelegramBot(telegramToken, { polling: true });
 
 logger.info('Bot created');
 
-getNewFlatOffers(bot, logger, whatsAppClient);
+// getNewFlatOffers(bot, logger, whatsAppClient);
+getNewFlatOffers(bot, logger);
 
