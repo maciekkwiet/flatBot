@@ -1,25 +1,13 @@
-import * as http from 'http';
+import cron from 'node-cron';
 import * as dotenv from 'dotenv';
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-import * as TelegramBot from 'node-telegram-bot-api';
-import { getNewFlatOffers } from './newFlatOffers';
+import express from 'express';
+import * as http from 'http';
+import mongoose from 'mongoose';
+import TelegramBot from 'node-telegram-bot-api';
 import * as winston from 'winston';
-
-// const qrcode = require('qrcode-terminal');
-// const { Client } = require('whatsapp-web.js');
-
-// const whatsAppClient = new Client();
-
-// whatsAppClient.on('qr', (qr: any) => {
-//   qrcode.generate(qr, {small: true});
-// });
-
-// whatsAppClient.on('ready', () => {
-//   console.log('Client is ready!');
-// });
-
-// whatsAppClient.initialize()
+import { searches } from './config';
+import { syncProxies } from './proxy';
+import { startWatcher } from './watcher';
 
 dotenv.config();
 
@@ -48,11 +36,15 @@ const logger = winston.createLogger({
 
 logger.info('App started');
 
-const telegramToken = process.env.TELEGRAM_TOKEN ?? '';
-const bot = new TelegramBot(telegramToken, { polling: true });
+const telegramTokenRent = process.env.TELEGRAM_TOKEN_RENT ?? '';
+const rentBot = new TelegramBot(telegramTokenRent, { polling: true });
 
 logger.info('Bot created');
 
-// getNewFlatOffers(bot, logger, whatsAppClient);
-getNewFlatOffers(bot, logger);
+syncProxies(logger);
+cron.schedule('0 */30 * * * *', () => syncProxies(logger));
+
+searches.forEach((config, i) => {
+  startWatcher(config, rentBot, logger, i);
+});
 

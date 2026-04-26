@@ -1,0 +1,22 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      - DB_KEY=mongodb://mongo:27017/flatbot
+      - TELEGRAM_TOKEN_RENT=${TELEGRAM_TOKEN_RENT}
+    env_file:
+      - .env
+
+volumes:
+  mongo_data:
