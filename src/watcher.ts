@@ -25,7 +25,7 @@ export async function startWatcher(
 
   logger.info(`[${config.type}] Watcher uruchomiony (${initUrls.length} ofert w bazie)`);
 
-  cron.schedule(`${offset}/${config.intervalSeconds} * * * * *`, async () => {
+  cron.schedule(`${offset} * * * * *`, async () => {
     const urls = [...new Set(await fetchAll(config, logger))];
 
     const existingUrls = await flatOfferRepository.findExistingUrls(urls, config.type);

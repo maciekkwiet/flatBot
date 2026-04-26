@@ -45,6 +45,6 @@ syncProxies(logger);
 cron.schedule('0 */30 * * * *', () => syncProxies(logger));
 
 searches.forEach((config, i) => {
-  startWatcher(config, rentBot, logger, i);
+  startWatcher(config, rentBot, logger, i + 15);
 });
 

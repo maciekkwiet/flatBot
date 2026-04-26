@@ -10,7 +10,6 @@ export type OtodomConfig = {
 
 export type SearchConfig = {
   type: string; // klucz deduplikacji w DB, np. 'buy', 'rent'
-  intervalSeconds: number;
   olx?: OlxConfig;
   otodom?: OtodomConfig;
 };
@@ -18,7 +17,6 @@ export type SearchConfig = {
 export const searches: SearchConfig[] = [
   {
     type: 'buy',
-    intervalSeconds: 60,
     olx: {
       searchParams: [
         { key: 'offset', value: '0' },
@@ -40,7 +38,6 @@ export const searches: SearchConfig[] = [
   },
   {
     type: 'rent',
-    intervalSeconds: 60,
     olx: {
       searchParams: [
         { key: 'offset', value: '0' },
