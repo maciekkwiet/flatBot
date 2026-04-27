@@ -18,29 +18,30 @@ export async function startWatcher(
   config: SearchConfig,
   bot: TelegramBot,
   logger: winston.Logger,
+  index: number,
   offset: number = 0,
 ): Promise<void> {
+  const tag = `#${index}`;
   const initUrls = await fetchAll(config, logger);
-  await flatOfferRepository.upsertUrls(initUrls, config.type);
+  await flatOfferRepository.upsertUrls(initUrls);
 
-  logger.info(`[${config.type}] Watcher uruchomiony (${initUrls.length} ofert w bazie)`);
+  logger.info(`[${tag}] Watcher uruchomiony (${initUrls.length} ofert w bazie)`);
 
   cron.schedule(`${offset} * * * * *`, async () => {
     const urls = [...new Set(await fetchAll(config, logger))];
 
-    const existingUrls = await flatOfferRepository.findExistingUrls(urls, config.type);
+    const existingUrls = await flatOfferRepository.findExistingUrls(urls);
     const newOffers = urls.filter(url => !existingUrls.includes(url));
 
-    await flatOfferRepository.upsertUrls(urls, config.type);
+    await flatOfferRepository.upsertUrls(urls);
 
     if (newOffers.length > 0 && newOffers.length < 10) {
       for (const offer of newOffers) {
-        logger.info(`[${config.type}] Nowa oferta: ${offer}`);
+        logger.info(`[${tag}] Nowa oferta: ${offer}`);
         bot.sendMessage(-1001870792878, offer);
       }
     } else {
-      logger.info(`[${config.type}] Brak nowych ofert`);
+      logger.info(`[${tag}] Brak nowych ofert`);
     }
   });
 }
-
