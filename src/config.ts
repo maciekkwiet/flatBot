@@ -59,16 +59,19 @@ export const olxSearches: OlxConfig[] = [
       { key: 'offset', value: '0' },
       { key: 'limit', value: '40' },
       { key: 'category_id', value: '2331' },
+      { key: 'region_id', value: '3' },
       { key: 'filter_enum_dogage[0]', value: 'young' },
       { key: 'suggest_filters', value: 'true' },
     ],
-    referer: 'https://www.olx.pl/zwierzeta/psy/psy-rasowe/golden-retriever/?search%5Bfilter_enum_dogage%5D%5B0%5D=young',
+    referer:
+      'https://www.olx.pl/zwierzeta/psy/psy-rasowe/golden-retriever/?search%5Bfilter_enum_dogage%5D%5B0%5D=young',
   },
   {
     searchParams: [
       { key: 'offset', value: '0' },
       { key: 'limit', value: '40' },
       { key: 'category_id', value: '2337' },
+      { key: 'region_id', value: '3' },
       { key: 'filter_enum_dogage[0]', value: 'young' },
       { key: 'suggest_filters', value: 'true' },
     ],
